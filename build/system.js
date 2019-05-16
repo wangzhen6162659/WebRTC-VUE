@@ -11,7 +11,7 @@ module.exports = {
       // target: 'http://58.16.181.23:10087',
       // target: 'http://192.168.1.54:11003',
       // target: 'http://58.16.181.23:10087',
-      target: 'http://192.168.1.92:11001',
+      target: 'http://wzroom.cn',
       changeOrigin: true, // 改变源
       pathRewrite: {
         '^/api': '/api' // 路径重写
