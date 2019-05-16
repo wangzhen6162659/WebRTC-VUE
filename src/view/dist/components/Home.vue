@@ -19,7 +19,7 @@
     <!--</div>-->
   <!--</div>-->
   <div class="whead">
-    <img src="/dist-static/lib/img/share.png" title="分享" alt="分享" v-show="roomTarget" class="closebtn" @click="sharelink">
+    <img src="/cloud-v1/dist-static/lib/img/share.png" title="分享" alt="分享" v-show="roomTarget" class="closebtn" @click="sharelink">
     <p class="wtitle">中科恒运视频会议</p>
   </div>
   <div class="mainvideo" id="mainvideo">
@@ -30,7 +30,7 @@
     </div>
     <div class="mainng">
       <div class="l bn"></div><div class="r bn"></div> <div class="b bn"></div><div class="br bn"></div>
-      <div class="videoContainer"><video src="" poster="/dist-static/lib/img/39.png" id="mainvideoplay"></video></div>
+      <div class="videoContainer"><video src="" poster="/cloud-v1/dist-static/lib/img/39.png" id="mainvideoplay"></video></div>
       <ul class="op" style="display:block">
         <li title="全屏"><i class="fullSc" @click="fullSc"></i></li>
       </ul>
@@ -39,7 +39,7 @@
       <dl id="dlc">
         <dd :id="dlcoId" ondblclick="moveVideoleft(this)">
           <div class="xl bn"></div><div class="xr bn"></div> <div class="xb bn"></div><div class="xbr bn"></div>
-          <video src="" poster="/dist-static/lib/img/39.png" id="localVideo"></video>
+          <video src="" poster="/cloud-v1/dist-static/lib/img/39.png" id="localVideo"></video>
           <div class="spinfo">{{localName}}</div>
           <div class="videolz" :style="videostyle"><i></i>正在录制 {{videolzh}}:{{videolzm}}:{{videolz}}</div>
           <ul class="op">
@@ -348,7 +348,7 @@
       userlist(id,name){
         let strlist = ''
         strlist += '<li id="w'+id+'">'
-        strlist += '<img src="dist-static/lib/img/p1.jpg">'
+        strlist += '<img src="/cloud-v1/dist-static/lib/img/p1.jpg">'
         strlist += '<span>'+name+'</span>'
         strlist += '</li>'
         $('#plist').append(strlist)
