@@ -62,3 +62,5 @@ video{width: 90%;height: 90%;position: absolute;left: 0;right: 0;top: 0;bottom: 
 
 .meetNameshow{position: absolute; top: 5px; left: 10px; color: #fff; font-size: 16px;}
 .meetNameshow p:last-child{font-size: 12px;color:#666;}
+.btnoperate .ivu-form-item-content{padding-left: 90px;}
+.btnoperatea .ivu-form-item-content{padding-left: 150px;}

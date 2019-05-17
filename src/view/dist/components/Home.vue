@@ -82,11 +82,11 @@
             <FormItem label="身份证号码" prop="idCard" v-show="isLogins">
                 <Input v-model="formValidate.idCard" placeholder="请输入身份证号码"></Input>
             </FormItem>
-            <FormItem>
-                <Button type="primary" @click="handleSubmit('save')" v-show="savebtn">保存</Button>
-                <Button type="primary" @click="handleSubmit('formValidate')" v-show="loginstaue">登录</Button>
-                <Button type="primary" @click="handleSubmit('zc')" v-show="acount">注册</Button>
-                <Button type="primary" @click="handleSubmit('backlogin')" v-show="backlogin">返回</Button>
+            <FormItem class="btnoperate">
+                <Button type="primary" @click="handleSubmit('save')" v-show="savebtn">提交</Button>
+                <Button type="success" @click="handleSubmit('formValidate')" v-show="loginstaue">登录</Button>
+                <Button type="warning" @click="handleSubmit('zc')" v-show="acount">注册</Button>
+                <Button type="dashed" @click="handleSubmit('backlogin')" v-show="backlogin">返回</Button>
             </FormItem>
           </Form>
       </div>
@@ -102,7 +102,7 @@
             <FormItem label="会议描述" prop="meetDesc">
                 <Input v-model="roomValidate.meetDesc" placeholder="请输入会议描述"></Input>
             </FormItem>
-            <FormItem>
+            <FormItem class="btnoperatea">
                 <Button type="primary" @click="roomSubmit('roomValidate')">提交</Button>
             </FormItem>
           </Form>
@@ -311,6 +311,7 @@
               const d = res.data.data
               vm.userName = d.userName
               vm.userPhone = d.account
+              vm.dlcoIdn = d.account
               vm.userId = d.id
               vm.hasRoom()
               vm.localName = d.userName
@@ -631,7 +632,6 @@
               $("#localVideo")[0].muted = true
               vm.userlist(vm.userPhone,vm.userName)
               vm.localName = vm.userName
-              vm.dlcoIdn = vm.userPhone
               // vm.videoREGSelf($("#localVideo")[0])
               //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVolMute));
               //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVidTag, 'videoTag', vm.vidTag1, 'button', 50));
@@ -918,7 +918,7 @@
 </script>
 <style>
 .maskop{z-index: 1000;position:absolute;width:100%;height:100%;top:0;background:rgba(0,0,0,.5);}
-.dialogk{position:absolute;;width:600px;padding:30px;left:0;right:0;top:15%;background:#fff;margin:0 auto;}
+.dialogk{position:absolute;;width:600px;padding:30px;left:0;right:0;top:25%;background:#fff;margin:0 auto;}
 .closemask{background: #19be6b; color: #fff; position: absolute; width: 25px; height: 25px; text-align: center; line-height: 25px; border-radius: 50%; right: 5px; top: 5px;}
 .op li i{font-size:26px;color:#fff;}
 .op li i.active{
