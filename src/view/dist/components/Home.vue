@@ -19,7 +19,7 @@
     <!--</div>-->
   <!--</div>-->
   <div class="whead">
-    <img src="/cloud-v1/dist-static/lib/img/share.png" title="分享" alt="分享" v-show="roomTarget" class="closebtn" @click="sharelink">
+    <!-- <img src="/cloud-v1/dist-static/lib/img/share.png" title="分享" alt="分享" v-show="roomTarget" class="closebtn" @click="sharelink"> -->
     <p class="wtitle">中科恒运视频会议</p>
   </div>
   <div class="mainvideo" id="mainvideo">
@@ -34,6 +34,10 @@
       <ul class="op" style="display:block">
         <li title="全屏"><i class="fullSc" @click="fullSc"></i></li>
       </ul>
+      <div class="meetNameshow">
+        <p>会议标题：{{meetNamethis}}</p>
+        <p>会议描述：{{meetdecript}}</p>
+      </div>
     </div>
     <div class="mainr">
       <dl id="dlc">
@@ -60,6 +64,7 @@
   <div class="btnm">
     <ul class="op mcv">
       <!--<li><img class="sybtn" src="dist-static/lib/img/sy.png"></li>-->
+      <li><img src="/cloud-v1/dist-static/lib/img/share.png" title="分享" alt="分享" v-show="roomTarget" @click="sharelink"></li>
       <!-- <li><img src="dist-static/lib/img/sx1.png"></li> -->
     </ul>
   </div>
@@ -67,18 +72,21 @@
     <div class="maskop" v-show="showdia">
       <div class="dialogk" v-show="showdia">
      <!--  <a class="closemask" @click="showdia = false;this.formValidate">X</a> -->
-         <Form :ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100">
-            <FormItem label="姓名" prop="userName">
-                <Input v-model="formValidate.userName" placeholder="请输入姓名"></Input>
-            </FormItem>
-            <FormItem label="身份证号码" prop="idCard">
-                <Input v-model="formValidate.idCard" placeholder="请输入身份证号码"></Input>
-            </FormItem>
-            <FormItem label="手机号码" prop="account">
+         <Form :ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="130" :islog="islog">
+            <FormItem label="登录账号(手机号码)" prop="account">
                 <Input v-model="formValidate.account" placeholder="请输入手机号码"></Input>
             </FormItem>
+            <FormItem label="姓名" prop="userName" v-show="isLogins">
+                <Input v-model="formValidate.userName" placeholder="请输入姓名"></Input>
+            </FormItem>
+            <FormItem label="身份证号码" prop="idCard" v-show="isLogins">
+                <Input v-model="formValidate.idCard" placeholder="请输入身份证号码"></Input>
+            </FormItem>
             <FormItem>
-                <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
+                <Button type="primary" @click="handleSubmit('save')" v-show="savebtn">保存</Button>
+                <Button type="primary" @click="handleSubmit('formValidate')" v-show="loginstaue">登录</Button>
+                <Button type="primary" @click="handleSubmit('zc')" v-show="acount">注册</Button>
+                <Button type="primary" @click="handleSubmit('backlogin')" v-show="backlogin">返回</Button>
             </FormItem>
           </Form>
       </div>
@@ -125,16 +133,26 @@
         userPhone: '',
         userId: '',
         dlcoId: '',
+        dlcoIdn: '',
         localName: '',
+        meetNamethis: '中科恒运股份有限公司第八次全体全体会议概要',
+        meetdecript: '回顾恒运过去讲述恒运未来',
+        acount: true,
         videolz: '',
-        videolzh:'00',
-        videolzm:'00',
+        videolzh: '00',
+        videolzm: '00',
         videostyle: '',
-        owner:'',
-        room:'',
+        owner: '',
+        room: '',
         token: '',
+        islog: true,
+        isLogins: false,
+        loginstaue: true,
+        backlogin: false,
+        savebtn: false,
         tag1: "静音",
         tag2: "取消静音",
+        logintext: '登录',
         vidTag1: "关闭视频",
         vidTag2: "打开视频",
         audTag1: "关闭麦克风",
@@ -161,7 +179,7 @@
           {required: true, message: '请填写用户名', trigger: 'blur' }
         ],
         idCard: [
-          {required: true, message: '请填写身份证号码', trigger: 'blur' }
+          { message: '请填写身份证号码', trigger: 'blur' }
         ],
         account: [{
             required: true,
@@ -179,16 +197,16 @@
     },
     computed: {},
     mounted() {
-    const vm = this
-    let token = this.GetUrlParam("token");
-    let mid = this.GetUrlParam("mid");
-    if(token == ''&&localStorage.getItem('token') != ''){
-      token = localStorage.getItem('token')
-    }
-    vm.room = mid
-    vm.token = token
-    this.login()
-      // this.isLogin()
+      const vm = this
+      let token = this.GetUrlParam("token");
+      let mid = this.GetUrlParam("mid");
+      if(token == ''&&localStorage.getItem('token') != ''){
+        token = localStorage.getItem('token')
+      }
+      vm.room = mid
+      vm.token = token
+      this.login()
+        // this.isLogin()
       this.fit()
     },
     methods:{
@@ -212,23 +230,60 @@
         type: 'success'
       });
     },
-    handleSubmit(){
-     const vm = this
-      this.fullscreenLoading = true
-      api(apiList.saveUser,
-        vm.formValidate
-      ).then(res => {
-        if(res.data.code == 0){
-          this.fullscreenLoading = false
-          window.location.href =  window.location.href.split('?')[0]+'?token='+res.data.data.token+'&mid='+vm.room
-          this.$router.go(0)
-          vm.sj()
-        }else{
-          vm.$Message.info(res.data.errmsg)
+    handleSubmit(a){
+      const vm = this
+      if(a == 'formValidate'){
+        if(vm.formValidate.account == ''){//登录验证
+          vm.$Message.info('请填写登录账号！')
+          return false
         }
-      })
+        api(apiList.login,
+          {phone: vm.formValidate.account}
+        ).then(res => {
+          let d = res.data.data
+          if(res.data.code!=0){
+            vm.$Message.info(res.data.errmsg) 
+          }else{
+            window.location.href =  window.location.href.split('?')[0]+'?token='+res.data.data+'&mid='+vm.room
+            this.$router.go(0)
+          }
+        })
+      }else if (a == 'zc'){//注册按钮
+        vm.isLogins = true
+        vm.savebtn = true
+        vm.loginstaue = false
+        vm.acount = false
+        vm.backlogin = true
+      } else if (a == 'save'){
+        if(vm.formValidate.account == ''&&vm.isLogins == true){
+          vm.$Message.info('请填写登录账号！')
+          return false
+        }
+        if(vm.formValidate.userName == ''&&vm.isLogins == true){
+          vm.$Message.info('请填写姓名！')
+          return false
+        }
+        api(apiList.saveUser,
+        vm.formValidate
+        ).then(res => {
+          if(res.data.code == 0){
+            this.fullscreenLoading = false
+            window.location.href =  window.location.href.split('?')[0]+'?token='+res.data.data.token+'&mid='+vm.room
+            this.$router.go(0)
+            vm.sj()
+          }else{
+            vm.$Message.info(res.data.errmsg)
+          }
+        })
+      } else if(a == 'backlogin'){//返回按钮
+        vm.isLogins = false
+        vm.savebtn = false
+        vm.loginstaue = true
+        vm.acount = true
+        vm.backlogin = false
+      }
      },
-     roomSubmit(name){
+     roomSubmit(name){//房间新增
        const vm = this
        vm.roomValidate.owner = vm.userPhone
        vm.fullscreenLoading = true
@@ -287,24 +342,22 @@
         }
      },
      GetUrlParam(paraName) {
-          var url = document.location.toString();
-          var arrObj = url.split("?");
-          if (arrObj.length > 1) {
-              var arrPara = arrObj[1].split("&");
-              var arr;
-
-              for (var i = 0; i < arrPara.length; i++) {
-                  arr = arrPara[i].split("=");
-
-                  if (arr != null && arr[0] == paraName) {
-                      return arr[1];
-                  }
-              }
-              return "";
+        var url = document.location.toString();
+        var arrObj = url.split("?");
+        if (arrObj.length > 1) {
+          var arrPara = arrObj[1].split("&");
+          var arr;
+          for (var i = 0; i < arrPara.length; i++) {
+            arr = arrPara[i].split("=");
+            if (arr != null && arr[0] == paraName) {
+                return arr[1];
+            }
           }
-          else {
-              return "";
-          }
+          return "";
+        }
+        else {
+          return "";
+        }
       },
       fit() {
         var w = $('body').width();
@@ -575,7 +628,7 @@
               $("#localVideo")[0].muted = true
               vm.userlist(vm.userPhone,vm.userName)
               vm.localName = vm.userName
-              vm.dlcoId = vm.userPhone
+              vm.dlcoIdn = vm.userPhone
               // vm.videoREGSelf($("#localVideo")[0])
               //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVolMute));
               //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVidTag, 'videoTag', vm.vidTag1, 'button', 50));
@@ -588,7 +641,7 @@
           })
           vm.webrtc.on('initMineVideo',function(){
               vm.videoREGSelf($("#localVideo")[0],-1)
-              if(vm.owner == vm.dlcoId){
+              if(vm.owner == vm.dlcoIdn){
                 vm.myhouse($("#localVideo")[0])
               }
           })
@@ -861,16 +914,9 @@
   }
 </script>
 <style>
-body > div:nyh-of-type(1),
-.ivu-layout{height:100%;}
-.ivu-layout{background: none;}
-/* .ivu-modal-hidden ,.ivu-modal-mask,.ivu-modal{
-    display: block!important;
-} */
-.maskop{position:absolute;width:100%;height:100%;top:0;background:rgba(0,0,0,.5);}
+.maskop{z-index: 1000;position:absolute;width:100%;height:100%;top:0;background:rgba(0,0,0,.5);}
 .dialogk{position:absolute;;width:600px;padding:30px;left:0;right:0;top:15%;background:#fff;margin:0 auto;}
 .closemask{background: #19be6b; color: #fff; position: absolute; width: 25px; height: 25px; text-align: center; line-height: 25px; border-radius: 50%; right: 5px; top: 5px;}
-.spinfo{position: absolute; color: red; bottom: 10px; z-index: 100; width: 100%; text-align: left;font-size: 16px;text-indent: 25px;}
 .op li i{font-size:26px;color:#fff;}
 .op li i.active{
   animation:myfirst 2s 1s both infinite;

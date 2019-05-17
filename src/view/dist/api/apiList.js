@@ -19,6 +19,10 @@ const serviceModule = {
     url: 'video/anno/meet/get',
     method: 'get'
   },
+  login: {
+    url: 'video/anno/user/getUserByPhone',
+    method: 'get'
+  }
   // findTyrzJoinLastYear: { // 近一年系统统一认证接入情况
   //   url: '/developer/serviceModule/findTyrzJoinLastYear',
   //   method: 'get'
