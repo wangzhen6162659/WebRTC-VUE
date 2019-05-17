@@ -135,8 +135,8 @@
         dlcoId: '',
         dlcoIdn: '',
         localName: '',
-        meetNamethis: '中科恒运股份有限公司第八次全体全体会议概要',
-        meetdecript: '回顾恒运过去讲述恒运未来',
+        meetNamethis: '',
+        meetdecript: '',
         acount: true,
         videolz: '',
         videolzh: '00',
@@ -332,7 +332,10 @@
             vm.$Message.info("请进入有效房间！")
             vm.addRome = true
           }else{
-            vm.owner = res.data.data.owner
+            var d = res.data.data
+            vm.owner = d.owner
+            vm.meetNamethis = d.meetName
+            vm.meetdecript = d.meetDesc
             vm.isLogin()
             vm.roomTarget = true
           }
