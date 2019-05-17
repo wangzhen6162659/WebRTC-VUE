@@ -11,8 +11,10 @@ function sybtn(e){
 	}
 }
 function moveVideoleft(e){
+	var tyId = $(e).attr('id')
 	var localVideo = $(e).find('video');
     var midVideoc = $('.videoContainer');
+    midVideoc.attr('id','tyId'+tyId)
     midVideoc.html('');
 	var copyNode = localVideo[0].cloneNode();
 	copyNode.srcObject = localVideo[0].srcObject;

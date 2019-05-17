@@ -27,10 +27,11 @@ video{width: 90%;height: 90%;position: absolute;left: 0;right: 0;top: 0;bottom: 
 .personlist{width: 200px;float: left;padding: 10px;box-sizing: border-box;background: rgba(8,19,75,0.5);position: relative;border: 1px solid #009688;}
 .personlist h1{font-size: 24px; text-align: center; color: #fff; font-family: 'kaiti';}
 .personlist ul{height: 92%;overflow-y: auto;margin-top: 20px;}
-.personlist ul li{position: relative; height: 42px; padding: 5px 15px 5px 60px; font-size: 0; cursor: pointer; }
+.personlist ul li{position: relative; height: 42px; padding: 5px 15px 5px 50px; font-size: 0; cursor: pointer; }
 .personlist ul li img {position: absolute; left: 15px; top: 8px; width: 30px; height: 30px; border-radius: 100%; }
 .personlist ul li * {display: inline-block; *display: inline; *zoom: 1; vertical-align: top; font-size: 14px; }
-.personlist ul li span {color: #fff; margin-top: 4px; max-width: 155px; }
+.personlist ul li i{position: absolute; right: 0; top: 0; font-style: normal; color: #fff; font-size: 12px; background: #ed4014; border-radius: 3px; padding: 0 3px;}
+.personlist ul li span {color: #fff; margin-top: 10px; max-width: 155px; }
 .personlist ul li span{overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .personlist ul li:hover,
 .personlist ul li.active,
@@ -49,12 +50,12 @@ video{width: 90%;height: 90%;position: absolute;left: 0;right: 0;top: 0;bottom: 
 .xb{width: 10px;height: 18px;background: url(../img/xb.png);left: 0;bottom: 0;}
 .xbr{width: 10px;height: 18px;background: url(../img/xbr.png);right: 0;bottom: 0;}
 .el-icon-bells,
-.el-icon-video-cameras{background: url(../img/syq.png);display: inline-block;width: 26px;height: 26px;background-size: 26px;}
+.el-icon-video-cameras{background: url(../img/syq.png)center center no-repeat;display: inline-block;width: 26px;height: 26px;background-size: 26px;}
 .el-icon-close-notifications,
 .fullSc,
-.el-icon-video-camerasa{background: url(../img/syq1.png);display: inline-block;width: 26px;height: 26px;background-size: 26px;}
-.el-icon-video-cameras{background: url(../img/sxt.png) center center;}
-.el-icon-video-camerasa{background: url(../img/sxtc.png) center center;}
+.el-icon-video-camerasa{background: url(../img/syq1.png)center center no-repeat;display: inline-block;width: 26px;height: 26px;background-size: 26px;}
+.el-icon-video-cameras{background: url(../img/sxt.png) center center no-repeat;}
+.el-icon-video-camerasa{background: url(../img/sxtc.png) center center no-repeat;}
 .videolz{position: absolute;right: 18px;bottom: 10px;color:#fff;z-index: 10;display: none;}
 .videolz i{display: inline-block;width: 8px;height: 8px;background: red;border-radius: 50%;margin-right:5px;}
 .fullSc{background: url(../img/full.png) center center no-repeat;background-size: 22px;}
@@ -63,4 +64,17 @@ video{width: 90%;height: 90%;position: absolute;left: 0;right: 0;top: 0;bottom: 
 .meetNameshow{position: absolute; top: 5px; left: 10px; color: #fff; font-size: 16px;}
 .meetNameshow p:last-child{font-size: 12px;color:#666;}
 .btnoperate .ivu-form-item-content{padding-left: 90px;}
-.btnoperatea .ivu-form-item-content{padding-left: 150px;}
+.btnoperatea .ivu-form-item-content{padding-left: 130px;}
+.meetbtnh .ivu-form-item-content{margin-left: 0 !important;}
+@media screen and (max-width: 1440px){
+	.op li{height: 26px;margin-bottom: 2px;}
+}
+@media screen and (max-width: 1366px){
+	.op{top: 8px;}
+	.op li{height: 20px;margin-bottom: 2px;}
+	.el-icon-close-notifications, 
+	.fullSc, 
+	.el-icon-video-camerasa{background-size: 20px;}
+	.op li i,
+	.el-icon-video-cameras{font-size: 20px !important;background-size: 20px;height: 20px;}
+}

@@ -97,18 +97,35 @@
       <!-- <a class="closemask" @click="addRome = false">X</a> -->
          <Form :ref="roomValidate" :model="roomValidate" :rules="roomRuleValidate" :label-width="100">
             <FormItem label="会议名称" prop="meetName">
-                <Input v-model="roomValidate.meetName" placeholder="请输入会议名称"></Input>
+                <Input v-model="roomValidate.meetName" :maxlength="14" placeholder="请输入会议名称"></Input>
             </FormItem>
             <FormItem label="会议描述" prop="meetDesc">
-                <Input v-model="roomValidate.meetDesc" placeholder="请输入会议描述"></Input>
+                <Input v-model="roomValidate.meetDesc" type="textarea" :maxlength="200" placeholder="请输入会议描述"></Input>
             </FormItem>
             <FormItem class="btnoperatea">
                 <Button type="primary" @click="roomSubmit('roomValidate')">提交</Button>
+                <Button type="success" @click="backmeetlist">返回列表</Button>
             </FormItem>
           </Form>
       </div>
     </div>
 
+    <div class="maskop" v-show="meetingMaxk">
+      <div class="dialogk" v-show="meetingMaxk" style="max-height:450px;overflow-y:auto;width: 80%;max-width:1000px;">
+      <Form :label-width="100" inline>
+        <FormItem label="会议名称" prop="meetName">
+            <Input v-model="meetNameC" :maxlength="14" placeholder="请输入会议名称"></Input>
+        </FormItem>
+        <FormItem class="meetbtnh">
+            <Button type="primary" @click="meetingSeachbtn">查询</Button>
+        </FormItem>
+        <FormItem class="meetbtnh">
+            <Button type="success" @click="mybuildroom">我要创建房间</Button>
+        </FormItem>
+      </Form>
+      <Table :columns="meetcolumns" height="281" :data="meetdata" :loading="loading"></Table>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -126,6 +143,8 @@
       return {
         showdia: false,
         addRome: false,
+        meetingMaxk: false,
+        loading: true,
         webrtc: '',
         loginTag: false,
         room: '',
@@ -134,6 +153,7 @@
         userId: '',
         dlcoId: '',
         dlcoIdn: '',
+        meetNameC: '',
         localName: '',
         meetNamethis: '',
         meetdecript: '',
@@ -149,6 +169,7 @@
         isLogins: false,
         loginstaue: true,
         backlogin: false,
+        isInit: false,
         savebtn: false,
         tag1: "静音",
         tag2: "取消静音",
@@ -160,6 +181,54 @@
         midInterval: null,
         roomTarget:'',
         fullscreenLoading: false,
+        meetcolumns: [
+            {
+              type: 'index',
+              width: 60,
+              align: 'center'
+            },
+            {
+              title: '会议名称',
+              key: 'meetName'
+            },
+            {
+              title: '会议描述',
+              key: 'meetDesc',
+              render: (h, params) => {
+                return h('div', [
+                    h('Span', {
+                      attrs: {
+                        title: params.row.meetDesc
+                      }
+                    }, params.row.meetDesc.length > 13?params.row.meetDesc.substring(0,13)+'...':params.row.meetDesc)
+                ])
+              }
+            },
+            {
+              title: '创建时间',
+              key: 'createTime'
+            },
+            {
+              title: '进入房间',
+              key: 'action',
+              render: (h, params) => {
+                return h('div', [
+                    h('Button', {
+                        props: {
+                            type: 'error',
+                            size: 'small'
+                        },
+                        on: {
+                            click: () => {
+                                this.comeroom(params.row.id)
+                            }
+                        }
+                    }, '进入房间')
+                ])
+              }
+            }
+        ],
+        meetdata: [],
         formValidate: {
            userName: '',
            idCard: '',
@@ -205,11 +274,32 @@
       }
       vm.room = mid
       vm.token = token
-      this.login()
+      vm.login()
         // this.isLogin()
-      this.fit()
+      vm.fit()
     },
     methods:{
+    meetingSeachbtn(){
+      const vm = this
+      vm.meetinglist()
+    },
+    meetinglist(){
+      const vm = this
+      api(apiList.meetingSeach,
+          {
+            meetName: vm.meetNameC,
+            userPhone: vm.userPhone
+          }
+        ).then(res => {
+          if(res.data.code == 0){
+            vm.loading = false
+            vm.meetdata = res.data.data
+            vm.sj()
+          }else{
+            vm.$Message.info(res.data.errmsg)
+          }
+        })
+    },
     fullSc(e){
       var fulls = $('.videoContainer').find('video')
       fulls[0].requestFullscreen()
@@ -287,6 +377,10 @@
        const vm = this
        vm.roomValidate.owner = vm.userPhone
        vm.fullscreenLoading = true
+       if(vm.roomValidate.meetName == ''){
+        vm.$Message.info('房间名称不能为空')
+        return false
+       }
        api(apiList.saveMeet,
           vm.roomValidate
         ).then(res => {
@@ -299,7 +393,7 @@
         })
      },
      login (){
-     const vm = this
+         const vm = this
          if (vm.token) {
           api(apiList.getDecode,
             {token: vm.token}
@@ -331,7 +425,9 @@
         ).then(res => {
           if (!res.data.data){
             vm.$Message.info("请进入有效房间！")
-            vm.addRome = true
+            // vm.addRome = true
+            vm.meetingMaxk = true
+            vm.meetingSeachbtn()
           }else{
             var d = res.data.data
             vm.owner = d.owner
@@ -342,8 +438,22 @@
           }
         })
         }else{
-          this.addRome = true
+          vm.meetingMaxk = true
+          vm.meetingSeachbtn()
         }
+     },
+     mybuildroom(){
+      this.addRome = true
+      this.meetingMaxk = false
+     },
+     backmeetlist(){
+      this.addRome = false
+      this.meetingMaxk = true
+     },
+     comeroom(roomId){
+      const vm = this
+      window.location.href =  window.location.href.split('?')[0]+'?token='+vm.token+'&mid='+roomId
+      this.$router.go(0)
      },
      GetUrlParam(paraName) {
         var url = document.location.toString();
@@ -367,10 +477,13 @@
         var w = $('body').width();
         var h = $('body').height();
         var hd = $('.whead').height();
+        if (w < 1445) {
+          $('.mainb').height(150)
+        }
         var vd = $('.mainvideo').height(h - hd - 40);
-        $('.mainng').width(w - $('.mainr').width() - $('.personlist').width() - 70).height(vd.height() - 210);
-        $('.mainr').height(vd.height() - 210);
-        $('.personlist').height(vd.height() - 230);
+        $('.mainng').width(w - $('.mainr').width() - $('.personlist').width() - 70).height(vd.height() - $('.mainb').height() - 10);
+        $('.mainr').height(vd.height() - $('.mainb').height() - 10);
+        $('.personlist').height(vd.height() - $('.mainb').height() - 30);
       },
       sj() {
         $('#dlc dd,#plist li').eq(0).addClass('active');
@@ -387,6 +500,9 @@
           } else if (this.tagName == 'DIV') {
             $('.mainr dl dd').removeClass('active');
             $('#w'+tsId).addClass('active').siblings().removeClass('active');
+          } else{
+            $('.mainb .swiper-slide,.mainr dl dd').removeClass('active');
+            $('#'+tsId.substring(1)).addClass('active').siblings().removeClass('active');
           }
           $(this).addClass('active').siblings().removeClass('active');
         });
@@ -402,9 +518,13 @@
           spaceBetween: 20
         })
       },
-      userlist(id,name){
+      userlist(id,name,f){
+        console.log(f)
         let strlist = ''
         strlist += '<li id="w'+id+'">'
+        if(f == 1){
+          strlist += '<i >房主</i>'
+        }
         strlist += '<img src="/cloud-v1/dist-static/lib/img/p1.jpg">'
         strlist += '<span>'+name+'</span>'
         strlist += '</li>'
@@ -598,9 +718,10 @@
           this.webrtc.videoOpenCon()
         }
       },
-      myhouse(e){
+      myhouse(e,u){
         var localVideo = e
         var midVideoc = $('.videoContainer');
+        midVideoc.attr('id','tyId'+u)
         midVideoc.html('');
         var copyNode = localVideo.cloneNode();
         copyNode.srcObject = localVideo.srcObject;
@@ -630,12 +751,8 @@
             if (vm.room) {
               var conn = vm.webrtc.joinRoom(vm.room);
               $("#localVideo")[0].muted = true
-              vm.userlist(vm.userPhone,vm.userName)
+              vm.userlist(vm.userPhone,vm.userName,vm.owner == conn.config.userPhone?1:0)
               vm.localName = vm.userName
-              // vm.videoREGSelf($("#localVideo")[0])
-              //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVolMute));
-              //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setVidTag, 'videoTag', vm.vidTag1, 'button', 50));
-              //$("#mineVideo").append(vm.buttonSet($("#localVideo")[0], vm.setAudTag, 'audioTag', vm.audTag1, 'button', 85));
             }
           });
 
@@ -643,9 +760,10 @@
             $('#name').text(user.userName);
           })
           vm.webrtc.on('initMineVideo',function(){
+              vm.dlcoId = vm.userPhone
               vm.videoREGSelf($("#localVideo")[0],-1)
               if(vm.owner == vm.dlcoIdn){
-                vm.myhouse($("#localVideo")[0])
+                vm.myhouse($("#localVideo")[0],vm.userPhone)
               }
           })
 
@@ -692,48 +810,23 @@
             }
             vm.sj();
             vm.ec();
-            vm.userlist(peer.userPhone,peer.userName)
-            if(vm.owner == peer.userPhone){
-              vm.myhouse(video)
+            vm.userlist(peer.userPhone,peer.userName,vm.owner == peer.userPhone?1:0)
+            if(vm.owner == peer.userPhone && !vm.isInit){
+              vm.myhouse(video,peer.userPhone)
+              vm.isInit = true
             }
-            // var remotes = document.getElementById('videos');
-            // if (remotes) {
-            //   var d = document.createElement('div');
-            //   d.className = 'videoContainer';
-            //   d.id = 'container_' + this.getDomId(peer);
-            //   d.appendChild(video);
-            //   var vol = document.createElement('div');
-            //   vol.id = 'volume_' + peer.id;
-            //   vol.className = 'volume_bar';
-            //   video.onclick = function () {
-            //     $("#mid_video").empty();
-            //     var midVideo = document.getElementById('mid_video');
-            //     vm.setMidButton(video, midVideo)
-            //   };
-            //   //下方唯一id
-            //   var name = document.createElement('label');
-            //   name.className = 'user_name';
-            //   name.innerHTML = peer.userName;
-            //   d.appendChild(vol);
-            //   d.appendChild(name);
-            //   d.appendChild(vm.buttonSet(video, vm.setVolMute));
-            //   remotes.appendChild(d);
-            // }
           });
           vm.webrtc.on('videoRemoved', function (video, peer) {
             $('#'+peer.userPhone).remove();
             $('#w'+peer.userPhone).remove();
-            // var remotes = document.getElementById('videos');
-            // var el = document.getElementById('container_' + vm.webrtc.getDomId(peer));
-            // if (remotes && el) {
-            //   remotes.removeChild(el);
-            // }
+            if(peer.userPhone == $('.videoContainer').attr('id').substring(4)){
+              $('.videoContainer').html('<video poster="/cloud-v1/dist-static/lib/img/39.png"></video>')
+            }
+            
           });
           vm.webrtc.on('volumeChange', function (volume, treshold) {
             vm.showVolume(document.getElementById('localVolume'), volume);
           });
-
-
           if (vm.room) {
             vm.setRoom(vm.room);
           } else {

@@ -11101,7 +11101,6 @@
     LocalMedia.prototype.start = function (mediaConstraints, cb) {
       var self = this;
       var constraints = mediaConstraints || this.config.media;
-      constraints.video = {width: 1280, height: 720}
       this.emit('localStreamRequested', constraints);
       var userMedia = navigator.mediaDevices.getUserMedia(constraints);
       userMedia.then(function (stream) {
